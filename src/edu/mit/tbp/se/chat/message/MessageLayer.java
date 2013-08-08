@@ -60,6 +60,28 @@ public class MessageLayer {
     // [END OPTIONAL]
     // 
     // * Client sends TOC toc_init_done message
+	  
+	  //Normalise the username to send to login
+	  String sNormaliseName = Utility.normalise(username);
+	  
+	  //Invoke the Toc2SignonMessage class to wire over connection
+	  Toc2SignonMessage oSignMessage = new Toc2SignonMessage(sNormaliseName, password);
+	  
+	  //Verify whether the connection is opened. If not open, then login. 
+      if (!connection.isConnectionOpened()) {
+          connection.connect(sNormaliseName);
+      }
+      
+      //Send an initial message
+      sendMessage(oSignMessage);
+      
+      //Get the response
+      String sResponse = connection.readMessage();
+      
+      //Disconnect current connection if response is not received
+      if (! "SIGN_ON".equals(sResponse)) {
+    	  connection.disconnect();
+      }
     
   }
 
@@ -71,7 +93,10 @@ public class MessageLayer {
    **/
   public void sendMessage(TOCMessage msg)
     throws IOException {
-    // fill in your code here
+	  
+	  //Send a message by invoking the appropriate "wireformat" method from Toc2SendIMMessage class
+	  connection.writeMessage(msg.toWireFormat());
+	  
   }
 
   /**
@@ -85,14 +110,19 @@ public class MessageLayer {
    **/
   public TOCMessage receiveMessage()
     throws IOException, AIMErrorException {
+	  
     String s = this.connection.readMessage();
     String commandString = TOCMessage.extractServerCommand(s);
 
     if (AIMErrorException.COMMAND_STRING.equals(commandString)) {
       throw new AIMErrorException(s);
     }
-
-    // fill in your code here
+    
+    String sCompleteMessage = connection.readMessage();
+    ServerIMIn2Message oIM_IN2Msg = new ServerIMIn2Message(sCompleteMessage);
+    return oIM_IN2Msg;
+    
+    
   }
 }
 

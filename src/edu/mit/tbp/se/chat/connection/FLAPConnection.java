@@ -491,6 +491,12 @@ public class FLAPConnection {
       return sb.toString();
     }
   }
-
+  
+  /*
+   * Create a new method that would check whether an existing Socket connection is active. If active return a "true" value, "false" otherwise
+   */
+  public boolean isConnectionOpened() {
+      return null != socket && null != in && null != out;
+  }
 
 }
