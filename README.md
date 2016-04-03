@@ -1,4 +1,4 @@
 AIM
 ===
 
-AIM Client implemented in Java
+AOL Instant Messenger client implemented in Java
